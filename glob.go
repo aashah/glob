@@ -39,7 +39,10 @@ while num entries > 0
         if none
             remove entry
         else
-            add an entry{result, idx + 1} unless idx + 1 is out of bounds
+            if idx + 1 is out of bounds
+                add an entry{result, idx + 1}
+            else
+                add result to final list
 
     keep current entry if it's idx is in bounds
 
