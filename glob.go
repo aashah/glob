@@ -18,6 +18,7 @@ import (
 /*
 Algorithm details
 
+segments = glob pattern split by os.path separator
 define Entry:
     path, index into glob
 
