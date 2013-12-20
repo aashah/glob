@@ -73,13 +73,17 @@ func Glob(root string, pattern string) (matches []string, e error) {
 
                 isdir, err := isDir(entry.path)
 
-                if !isdir || err != nil {
+                if err != nil {
+                    return nil, err
+                }
+
+                if !isdir {
                     continue
                 }
 
                 d, err := os.Open(entry.path)
                 if err != nil {
-                    return
+                    return nil, err
                 }
                 
                 names, err := d.Readdirnames(-1)
@@ -89,7 +93,7 @@ func Glob(root string, pattern string) (matches []string, e error) {
                     isdir, err = isDir(path)
                     
                     if err != nil {
-                        continue
+                        return nil, err
                     }
 
                     if isdir {
@@ -104,7 +108,11 @@ func Glob(root string, pattern string) (matches []string, e error) {
 
             } else {
                 path := filepath.Join(workingPath, segment)
-                results, _ := filepath.Glob(path)
+                results, err := filepath.Glob(path)
+
+                if err != nil {
+                    return nil, err
+                }
 
                 for _, result := range results {
                     newEntry := matchEntry{
