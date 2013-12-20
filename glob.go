@@ -7,12 +7,6 @@ import (
     "strings"
 )
 
-const (
-    matchDoubleAsterisk string = "\\*\\*\\/?"
-    matchAsterisk string = "([^*])?\\*([^*])?"
-    globTransform string = "(?:.*/)?"
-)
-
 /*
  * glob - an expanded version
  *
@@ -64,9 +58,7 @@ func Glob(root string, pattern string) (matches []string, e error) {
         matchEntry{path: root, idx: 0},
     }
 
-    count := 0
     for len(workingEntries) > 0 {
-        count++
         var temp []matchEntry
         for _, entry := range workingEntries {
             workingPath := entry.path
