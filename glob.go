@@ -63,6 +63,7 @@ func Glob(root string, pattern string) (matches []string, e error) {
     }
 
     for len(workingEntries) > 0 {
+
         var temp []matchEntry
         for _, entry := range workingEntries {
             workingPath := entry.path
@@ -96,7 +97,7 @@ func Glob(root string, pattern string) (matches []string, e error) {
                 // if we're at the end of the pattern, we found a match
                 // else add it to a working entry
                 path := filepath.Join(workingPath, segment)
-                if results, err := filepath.Glob(path)
+                results, err := filepath.Glob(path)
 
                 if err != nil {
                     return nil, err
@@ -122,9 +123,9 @@ func Glob(root string, pattern string) (matches []string, e error) {
             if entry.idx < len(segments) {
                 temp = append(temp, entry)
             }
-
-            workingEntries = temp
         }
+
+        workingEntries = temp
     }
 
     return
@@ -143,7 +144,7 @@ func isDir(path string) (val bool, err error) {
 func getAllSubDirectories(path string) (dirs []string, err error) {
 
     if dir, err := isDir(path); err != nil || !dir {
-        return nil, errors.New("Not a directory")
+        return nil, errors.New("Not a directory " + path)
     }
 
     d, err := os.Open(path)
@@ -157,7 +158,8 @@ func getAllSubDirectories(path string) (dirs []string, err error) {
     }
 
     for _, file := range files {
-        if dir, err := isDir(file); err == nil && dir {
+        path := filepath.Join(path, file)
+        if dir, err := isDir(path); err == nil && dir {
             dirs = append(dirs, file)
         }
     }
