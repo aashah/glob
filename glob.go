@@ -70,6 +70,8 @@ func Glob(root string, pattern string) (matches []string, e error) {
             segment := segments[entry.idx]
 
             if segment == "**" {
+                // add all subdirectories and move yourself one step further
+                // into pattern
                 entry.idx++
 
                 subDirectories, err := getAllSubDirectories(entry.path)
@@ -90,28 +92,33 @@ func Glob(root string, pattern string) (matches []string, e error) {
                 }
 
             } else {
+                // look at all results
+                // if we're at the end of the pattern, we found a match
+                // else add it to a working entry
                 path := filepath.Join(workingPath, segment)
-                results, err := filepath.Glob(path)
+                if results, err := filepath.Glob(path)
 
                 if err != nil {
                     return nil, err
                 }
 
                 for _, result := range results {
-                    newEntry := matchEntry{
-                        path: result,
-                        idx: idx + 1,
-                    }
-
                     if idx + 1 < len(segments) {
+                        newEntry := matchEntry{
+                            path: result,
+                            idx: idx + 1,
+                        }
+
                         temp = append(temp, newEntry)                        
                     } else {
                         matches = append(matches, result)
                     }
                 }
+                // delete ourself regardless
                 entry.idx = len(segments)
             }
 
+            // check whether current entry is still valid
             if entry.idx < len(segments) {
                 temp = append(temp, entry)
             }
