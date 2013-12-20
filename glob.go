@@ -1,7 +1,7 @@
 package glob
 
 import (
-    "fmt"
+    "errors"
     "os"
     "path/filepath"
     "strings"
@@ -72,39 +72,21 @@ func Glob(root string, pattern string) (matches []string, e error) {
             if segment == "**" {
                 entry.idx++
 
-                isdir, err := isDir(entry.path)
+                subDirectories, err := getAllSubDirectories(entry.path)
 
                 if err != nil {
                     return nil, err
                 }
 
-                if !isdir {
-                    continue
-                }
-
-                d, err := os.Open(entry.path)
-                if err != nil {
-                    return nil, err
-                }
-                
-                names, err := d.Readdirnames(-1)
-
-                for _, name := range names {
+                for _, name := range subDirectories {
                     path := filepath.Join(workingPath, name)
-                    isdir, err = isDir(path)
-                    
-                    if err != nil {
-                        return nil, err
+
+                    newEntry := matchEntry{
+                        path: path,
+                        idx: idx,
                     }
 
-                    if isdir {
-                        newEntry := matchEntry{
-                            path: path,
-                            idx: idx,
-                        }
-
-                        temp = append(temp, newEntry)
-                    }
+                    temp = append(temp, newEntry)
                 }
 
             } else {
@@ -141,7 +123,7 @@ func Glob(root string, pattern string) (matches []string, e error) {
     return
 }
 
-func isDir(path string) (bool, error) {
+func isDir(path string) (val bool, err error) {
     fi, err := os.Stat(path)
 
     if err != nil {
@@ -151,3 +133,26 @@ func isDir(path string) (bool, error) {
     return fi.IsDir(), nil
 }
 
+func getAllSubDirectories(path string) (dirs []string, err error) {
+
+    if dir, err := isDir(path); err != nil || !dir {
+        return nil, errors.New("Not a directory")
+    }
+
+    d, err := os.Open(path)
+    if err != nil {
+        return nil, err
+    }
+    
+    files, err := d.Readdirnames(-1)
+    if err != nil {
+        return nil, err
+    }
+
+    for _, file := range files {
+        if dir, err := isDir(file); err == nil && dir {
+            dirs = append(dirs, file)
+        }
+    }
+    return
+}
