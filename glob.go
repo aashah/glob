@@ -41,9 +41,9 @@ while num entries > 0
             remove entry
         else
             if idx + 1 is out of bounds
-                add an entry{result, idx + 1}
-            else
                 add result to final list
+            else
+                add an entry{result, idx + 1}
 
     keep current entry if it's idx is in bounds
 
@@ -118,7 +118,7 @@ func Glob(root string, pattern string) (matches []string, e error) {
                 entry.idx = len(segments)
             }
 
-            // check whether current entry is still valid
+            // check whether current entry is still valid   
             if entry.idx < len(segments) {
                 temp = append(temp, entry)
             }
