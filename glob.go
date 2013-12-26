@@ -55,7 +55,10 @@ type matchEntry struct {
 }
 
 func Glob(root string, pattern string) (matches []string, e error) {
-    // TODO check if it even contains **, if not, just use normal filepath.Glob
+    if strings.Index(pattern, "**") < 0 {
+        return filepath.Glob(filepath.Join(root, pattern))
+    }
+
     segments := strings.Split(pattern, string(os.PathSeparator))
 
     workingEntries := []matchEntry{
